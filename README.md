@@ -1,19 +1,21 @@
-# osu-MP3-Extracter
-osu!のSongsフォルダに有るMP3ファイルを正しく抽出するPythonスクリプトです。
+# osu-MP3-Copier
+osu!の譜面フォルダからMP3ファイル等をコピーするPythonスクリプトです。
+
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/ReNeeter/osu-MP3-Copier)
+![GitHub All Releases](https://img.shields.io/github/downloads/ReNeeter/osu-MP3-Copier/total)
 
 ## 使い方
-Windowsの方は[リリースページ](https://github.com/ReNeeter/osu-MP3-Extracter/releases/latest)からビルド済みバイナリをダウンロード出来ます。  
-Mac、Linuxの方は[Pythonスクリプト](osu-MP3-Extracter.py)をダウンロードして実行してください。
+Windowsの方は[リリースページ](https://github.com/ReNeeter/osu-MP3-Copier/releases/latest)からビルド済みバイナリをダウンロード出来ます。  
+Mac、Linuxの方は[Pythonスクリプト](osu-MP3-Copier.py)をダウンロードして実行してください。
 
-第1引数にosu!のインストールフォルダのパスを、第2引数にMP3のコピー先のパスを入力して実行してください。
+第1引数にosu!の譜面フォルダのパスを、第2引数にファイルのコピー先のパスを入力して実行してください。
 
-### 例
+## 例
 ```bat
-osu-MP3-Extracter.exe %LOCALAPPDATA%\osu! %USERPROFILE%\Music
+osu-MP3-Copier.exe %LOCALAPPDATA%\osu!\Songs %USERPROFILE%\Music
 ```
 
-## 仕様
-一旦osu!のSongsフォルダからコピー先のフォルダにコピーしてから、ファイル名から先頭にある番号や「[no video]」を削除しています。  
-ちなみにコピー時はコピーするMP3の直上のディレクトリ名にリネームしてコピーしています。  
-(ファイル名が重複するのを防ぐのと、MP3Tag等のソフトでタグをつけやすくするため)  
-リネーム時にファイル名が重複した物は「(1)」や「(2)」をファイル名の末尾に付けています。
+## Todo
+- [ ] 譜面からMP3ファイルを読み込み
+- [ ] カバーアートもコピー・合成を可能に
+- [ ] オプションを追加

@@ -2,8 +2,8 @@ from cx_Freeze import setup
 from cx_Freeze import Executable
 
 setup(
-        name = 'osu-MP3-Extracter',
+        name = 'osu-MP3-Copier',
         version = '0.3',
-        description = 'osu!のSongsフォルダに有るMP3ファイルを正しく抽出するPythonスクリプトです。',
-        executables = [Executable('osu-MP3-Extracter.py')]
+        description = 'osu!の譜面フォルダからMP3ファイル等をコピーするPythonスクリプトです。',
+        executables = [Executable('osu-MP3-Copier.py')]
 )
