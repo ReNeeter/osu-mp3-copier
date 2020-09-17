@@ -1,15 +1,15 @@
-# osu-mp3-copier
-osu!のSongsフォルダに有るMP3ファイルを正しくコピーするPythonスクリプトです。
+# osu-MP3-Extracter
+osu!のSongsフォルダに有るMP3ファイルを正しく抽出するPythonスクリプトです。
 
 ## 使い方
-Windowsの方は[リリースページ](https://github.com/ReNeeter/osu-mp3-copier/releases)からビルド済みバイナリをダウンロード出来ます。  
-Mac、Linuxの方は[Pythonスクリプト](osu-mp3-copier.py)をダウンロードして実行してください。
+Windowsの方は[リリースページ](https://github.com/ReNeeter/osu-MP3-Extracter/releases/latest)からビルド済みバイナリをダウンロード出来ます。  
+Mac、Linuxの方は[Pythonスクリプト](osu-MP3-Extracter.py)をダウンロードして実行してください。
 
-第1引数にosu!のインストールフォルダのパス(通常は「%LOCALAPPDATA%\osu!」にあります)を、第2引数にMP3のコピー先のパスを入力して実行してください。
+第1引数にosu!のインストールフォルダのパスを、第2引数にMP3のコピー先のパスを入力して実行してください。
 
 ### 例
 ```bat
-osu-mp3-copier.exe %LOCALAPPDATA%\osu! %USERPROFILE%\Music
+osu-MP3-Extracter.exe %LOCALAPPDATA%\osu! %USERPROFILE%\Music
 ```
 
 ## 仕様

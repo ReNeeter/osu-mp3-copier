@@ -5,7 +5,7 @@ import shutil
 import sys
 
 # ソフトの詳細を表示
-print('osu-mp3-copier ver.0.2\n作者:ReNeeter\n')
+print('osu-MP3-Extracter ver.0.3\n作者:ReNeeter\n')
 
 # 引数のエラー判定
 if len(sys.argv) != 3:
