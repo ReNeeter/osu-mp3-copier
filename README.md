@@ -1,8 +1,8 @@
 # osu-MP3-Copier
 osu!の譜面フォルダからMP3ファイル等をコピーするPythonスクリプトです。
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/ReNeeter/osu-MP3-Copier)
-![GitHub All Releases](https://img.shields.io/github/downloads/ReNeeter/osu-MP3-Copier/total)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/ReNeeter/osu-MP3-Copier)](https://github.com/ReNeeter/osu-MP3-Copier/releases/latest)
+[![GitHub All Releases](https://img.shields.io/github/downloads/ReNeeter/osu-MP3-Copier/total)](https://github.com/ReNeeter/osu-MP3-Copier/releases)
 
 ## 使い方
 Windowsの方は[リリースページ](https://github.com/ReNeeter/osu-MP3-Copier/releases/latest)からビルド済みバイナリをダウンロード出来ます。  
