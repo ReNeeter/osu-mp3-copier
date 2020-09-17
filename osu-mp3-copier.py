@@ -5,7 +5,7 @@ import shutil
 import sys
 
 # ソフトの詳細を表示
-print('osu-mp3-copier ver.0.1\n作者:ReNeeter\n')
+print('osu-mp3-copier ver.0.2\n作者:ReNeeter\n')
 
 # 引数のエラー判定
 if len(sys.argv) != 3:
@@ -13,8 +13,8 @@ if len(sys.argv) != 3:
     sys.exit(1)
 
 # パス
-osuPath = repr(sys.argv[1]).strip("'")
-copyPath = repr(sys.argv[2]).strip("'")
+osuPath = os.path.expandvars(repr(sys.argv[1]).strip("'"))
+copyPath = os.path.expandvars(repr(sys.argv[2]).strip("'"))
 
 # コピー開始
 print('コピー中です...')
@@ -39,6 +39,8 @@ print('リネーム中です...')
 
 # コピーしたMP3ファイルをリネーム
 for renameMP3FileName in [f for f in os.listdir(copyPath) if os.path.isfile(os.path.join(copyPath, f))]:
+    if os.path.splitext(renameMP3FileName)[1] != '.mp3':
+        continue
     renamedMP3FileName = re.sub(r'^\d+ ', '', renameMP3FileName)
     renamedMP3FileName = re.sub(r' \[no video\].mp3$', '.mp3', renamedMP3FileName)
     if os.path.isfile(os.path.join(copyPath, renamedMP3FileName)):

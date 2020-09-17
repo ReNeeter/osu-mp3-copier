@@ -5,11 +5,11 @@ osu!のSongsフォルダに有るMP3ファイルを正しくコピーするPytho
 Windowsの方は[リリースページ](https://github.com/ReNeeter/osu-mp3-copier/releases)からビルド済みバイナリをダウンロード出来ます。  
 Mac、Linuxの方は[Pythonスクリプト](osu-mp3-copier.py)をダウンロードして実行してください。
 
-第1引数にosu!のインストールフォルダのパス(通常は「C:\Users\[ユーザー名]\AppData\Local\osu!」にあります)を、第2引数にMP3のコピー先のパスを入力して実行してください。
+第1引数にosu!のインストールフォルダのパス(通常は「%LOCALAPPDATA%\osu!」にあります)を、第2引数にMP3のコピー先のパスを入力して実行してください。
 
 ### 例
 ```bat
-osu-mp3-copier.exe C:\Users\renee\AppData\Local\osu! C:\Users\renee\Music
+osu-mp3-copier.exe %LOCALAPPDATA%\osu! %USERPROFILE%\Music
 ```
 
 ## 仕様
