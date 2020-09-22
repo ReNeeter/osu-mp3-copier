@@ -35,16 +35,21 @@ renameMusicFileNameList = []
 
 for osuMusicPath in glob.glob(os.path.join(osuSongsPath, r'**\*.osu'), recursive=True):
     with open(osuMusicPath, encoding='UTF-8') as f:
-        osuMusicDirectoryReMatch = re.match(r'\d+', os.path.basename(os.path.dirname(osuMusicPath)))
+        osuMusicDirectoryPath = os.path.dirname(osuMusicPath)
+        osuMusicDirectoryName = os.path.basename(osuMusicDirectoryPath)
+        osuMusicDirectoryReMatch = re.match(r'\d+', osuMusicDirectoryName)
         if osuMusicDirectoryReMatch == None:
             osuMusicDirectoryNumber = ''
         else:
             osuMusicDirectoryNumber = osuMusicDirectoryReMatch.group()
         if not osuMusicDirectoryNumber in osuMusicDirectoryNumberList:
             copyMusicFileName = [s for s in [s.strip() for s in f.readlines()] if s.startswith('AudioFilename:')][0].lstrip('AudioFilename:').strip()
-            copyMusicPathList.append(os.path.join(os.path.dirname(osuMusicPath), copyMusicFileName))
+            if not os.path.isfile(os.path.join(osuMusicDirectoryPath, copyMusicFileName)):
+                print(osuMusicDirectoryName + 'の音楽ファイルが見つかりません。スキップします。')
+                continue
+            copyMusicPathList.append(os.path.join(osuMusicDirectoryPath, copyMusicFileName))
             osuMusicDirectoryNumberList.append(osuMusicDirectoryNumber)
-            renameMusicFileNameList.append(copyMusicFileName)
+            renameMusicFileNameList.append(osuMusicDirectoryName + os.path.splitext(copyMusicFileName)[1])
 
 # 譜面を取得完了
 print('譜面が正しく取得されました。\n')
@@ -54,11 +59,7 @@ print('コピー中です…')
 
 # 取り出した値の音楽ファイルをcopyPathに全てコピー
 for copyMusicPath in copyMusicPathList:
-    copyMusicDirectoryName = os.path.basename(os.path.dirname(copyMusicPath))
-    if not os.path.isfile(copyMusicPath):
-        print(copyMusicDirectoryName + 'の音楽ファイルが見つかりません。スキップします。')
-        continue
-    shutil.copy2(copyMusicPath, os.path.join(copyPath, copyMusicDirectoryName + os.path.splitext(copyMusicPath)[1]))
+    shutil.copy2(copyMusicPath, os.path.join(copyPath, os.path.basename(os.path.dirname(copyMusicPath)) + os.path.splitext(copyMusicPath)[1]))
 
 # コピー完了
 print('ファイルが正しくコピーされました。\n')
