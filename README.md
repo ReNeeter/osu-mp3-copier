@@ -16,6 +16,7 @@ osu-Music-Copier.exe %LOCALAPPDATA%\osu!\Songs %USERPROFILE%\Music
 ```
 
 ## Todo
-- [ ] 譜面からMP3ファイルを読み込み
+- [x] 譜面から音楽ファイルを読み込み
+- [ ] 譜面からメタ情報を読み込みタグを付けられるように
 - [ ] カバーアートもコピー・合成を可能に
 - [ ] オプションを追加
