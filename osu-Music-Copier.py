@@ -57,6 +57,7 @@ for copyMusicPath in copyMusicPathList:
     copyMusicDirectoryName = os.path.basename(os.path.dirname(copyMusicPath))
     if not os.path.isfile(copyMusicPath):
         print(copyMusicDirectoryName + 'の音楽ファイルが見つかりません。スキップします。')
+        continue
     shutil.copy2(copyMusicPath, os.path.join(copyPath, copyMusicDirectoryName + os.path.splitext(copyMusicPath)[1]))
 
 # コピー完了
