@@ -1,0 +1,45 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.buildOS }}
+
+    strategy:
+      matrix:
+        buildOS:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      # Install cx_Freeze
+      - name: Install cx_Freeze
+        run: |
+          pip install -U pip
+          pip install cx_freeze
+
+      # Build
+      - name: Build
+        run: python setup.py build
+
+      # Upload build artifact
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.buildOS }}
+          path: build
