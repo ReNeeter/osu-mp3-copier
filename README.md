@@ -5,7 +5,7 @@ osu!の譜面フォルダーから音楽ファイルをコピーします。
 [![GitHub All Releases](https://img.shields.io/github/downloads/ReNeeter/osu-Music-Copier/total)](https://github.com/ReNeeter/osu-Music-Copier/releases)
 
 ## 使い方
-[リリースページ](https://github.com/ReNeeter/osu-Music-Copier/releases/latest)からビルド済みバイナリをダウンロードできます。
+[リリースページ](https://github.com/ReNeeter/osu-Music-Copier/releases/latest)からビルド済みバイナリをダウンロードできます。  
 ちなみにWindows版以外は動作確認をしていません。
 
 ## Todo
