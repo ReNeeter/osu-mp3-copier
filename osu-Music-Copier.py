@@ -50,11 +50,10 @@ def copy(osuSongsPath, copyPath, isRename):
         messagebox.showerror("エラー", "入力されたパスが壊れています。")
         return
 
-    # startThread(showProgress)
-
     copyMusicPathList = []
     osuSongDirNumList = []
     renameMusicNameList = []
+    renamedMusicNameList = []
 
     for osuSongPath in glob.glob(
         os.path.join(osuSongsPath, r"**\*.osu"), recursive=True
@@ -68,12 +67,9 @@ def copy(osuSongsPath, copyPath, isRename):
             else:
                 osuSongDirNum = ""
             if not osuSongDirNum in osuSongDirNumList:
+                osuSong = [s.strip() for s in f.readlines()]
                 copyMusicName = (
-                    [
-                        s
-                        for s in [s.strip() for s in f.readlines()]
-                        if s.startswith("AudioFilename:")
-                    ][0]
+                    [s for s in osuSong if s.startswith("AudioFilename:")][0]
                     .lstrip("AudioFilename:")
                     .strip()
                 )
@@ -85,24 +81,42 @@ def copy(osuSongsPath, copyPath, isRename):
                     continue
                 copyMusicPathList.append(os.path.join(osuSongDirPath, copyMusicName))
                 osuSongDirNumList.append(osuSongDirNum)
-                renameMusicNameList.append(
-                    osuSongDirName + os.path.splitext(copyMusicName)[1]
+                renamedMusicNameOriginal = [
+                    s for s in osuSong if s.startswith("TitleUnicode:")
+                ]
+                if renamedMusicNameOriginal:
+                    renamedMusicName = (
+                        renamedMusicNameOriginal[0].lstrip("TitleUnicode:").strip()
+                    )
+                else:
+                    renamedMusicName = (
+                        [s for s in osuSong if s.startswith("Title:")][0]
+                        .lstrip("Title:")
+                        .strip()
+                    )
+                renamedMusicNameList.append(
+                    renamedMusicName + os.path.splitext(copyMusicName)[1]
                 )
 
+    if (
+        len(copyMusicPathList) != len(osuSongDirNumList)
+        or len(osuSongDirNumList) != len(renamedMusicNameList)
+        or len(renamedMusicNameList) != len(copyMusicPathList)
+    ):
+        messagebox.showerror("エラー", "譜面を読込中にエラーが発生しました。")
+        return
+
     for copyMusicPath in copyMusicPathList:
-        shutil.copy2(
-            copyMusicPath,
-            os.path.join(
-                copyPath,
-                os.path.basename(os.path.dirname(copyMusicPath))
-                + os.path.splitext(copyMusicPath)[1],
-            ),
+        copiedMusicName = (
+            os.path.basename(os.path.dirname(copyMusicPath))
+            + os.path.splitext(copyMusicPath)[1]
         )
+        renameMusicNameList.append(copiedMusicName)
+        shutil.copy2(copyMusicPath, os.path.join(copyPath, copiedMusicName))
 
     if isRename:
-        renameCopyFile(copyPath, renameMusicNameList)
+        renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList)
     else:
-        # progressDialog.destroy()
         messagebox.showinfo("情報", "音楽ファイルが全てコピーされました。")
 
 
@@ -115,36 +129,37 @@ def showDirSelect(setEntry):
 
 
 # コピーしたファイルをリネーム
-def renameCopyFile(copyPath, renameMusicNameList):
-    for renameMusicName in renameMusicNameList:
-        renameMusicNameExt = os.path.splitext(renameMusicName)[1]
-        renamedMusicName = re.sub(
-            r" \[no video\]" + renameMusicNameExt + r"$",
-            renameMusicNameExt,
-            re.sub(r"^\d+ ", "", renameMusicName),
-        )
+def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList):
+    for renameMusicName, renamedMusicName in zip(
+        renameMusicNameList, renamedMusicNameList
+    ):
+        renamedMusicNameExt = os.path.splitext(renamedMusicName)[1]
+        renamedMusicName = renamedMusicName.replace('"', "'")
+        renamedMusicName = re.sub(r"[\\/:*?<>|]", "", renamedMusicName)
         if os.path.isfile(os.path.join(copyPath, renamedMusicName)):
-            renamedMusicName = renamedMusicName.replace(
-                renameMusicNameExt, " (1)" + renameMusicNameExt
+            renamedMusicName = re.sub(
+                renamedMusicNameExt + r"$",
+                " (1)" + renamedMusicNameExt,
+                renamedMusicName,
             )
             renameCount = 1
-            while os.path.isfile(os.path.join(copyPath, renamedMusicName)):
+            while os.path.isfile(os.path.join(copyPath, renamedMusicName)):  # FIXME
                 renameCount += 1
-                renamedMusicName = renamedMusicName.replace(
-                    " (" + str(renameCount - 1) + ")" + renameMusicNameExt,
-                    " (" + str(renameCount) + ")" + renameMusicNameExt,
+                renamedMusicName = re.sub(
+                    r" (" + str(renameCount - 1) + r")" + renamedMusicNameExt + r"$",
+                    " (" + str(renameCount) + ")" + renamedMusicNameExt,
+                    renamedMusicName,
                 )
         os.rename(
             os.path.join(copyPath, renameMusicName),
             os.path.join(copyPath, renamedMusicName),
         )
 
-    # progressDialog.destroy()
     messagebox.showinfo("情報", "音楽ファイルが全てコピー＆リネームされました。")
 
 
 # 進捗状況を表示
-def showProgress():
+def showProgress():  # FIXME
     progressDialog = tkinter.Toplevel(mainRoot)
     progressDialog.grab_set()
     progressDialog.resizable(False, False)
@@ -191,6 +206,12 @@ isRenameCheckButton = ttk.Checkbutton(
     text="コピー後にファイル名から識別番号等のゴミを取り除く",
     variable=isRenameCheckButtonChecked,
 )
+isAddTagCheckButtonChecked = tkinter.BooleanVar(value=True)
+isAddTagCheckButton = ttk.Checkbutton(
+    mainFrame,
+    text="コピー後に譜面から音楽ファイルの情報を読み取りタグ付けする",
+    variable=isAddTagCheckButtonChecked,
+)
 copyStartButton = ttk.Button(
     mainFrame,
     text="コピー",
@@ -210,6 +231,7 @@ copyPathLabel.grid(row=1, column=0, padx=10, pady=10)
 copyPathEntry.grid(row=1, column=1, padx=10, pady=10)
 copyPathBrowseButton.grid(row=1, column=2, padx=10, pady=10)
 isRenameCheckButton.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
-copyStartButton.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
+isAddTagCheckButton.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
+copyStartButton.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
 
 mainRoot.mainloop()
