@@ -171,12 +171,6 @@ def copy(osuSongsPath, copyPath, isRename, isAddTag):
                         copyMusicTitle + os.path.splitext(copyMusicName)[1]
                     )
 
-    if len(copyMusicPathList) != len(renamedMusicNameList) or len(
-        renamedMusicNameList
-    ) != len(copyMusicPathList):
-        messagebox.showerror("エラー", "譜面を読込中にエラーが発生しました。")
-        return
-
     for copyMusicPath in copyMusicPathList:
         copiedMusicName = (
             os.path.basename(os.path.dirname(copyMusicPath))
