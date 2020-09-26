@@ -1,16 +1,19 @@
 import ctypes
 import glob
+import mutagen.id3
 import os
 import re
 import shutil
 import tkinter
 import threading
 import webbrowser
+
 from tkinter import filedialog, ttk, messagebox
+from mutagen.easyid3 import EasyID3
 
 
 # ホームページを開く
-def openHomepage():
+def openHomepage(event):
     webbrowser.open("https://github.com/ReNeeter/osu-Music-Copier")
 
 
@@ -24,7 +27,7 @@ def showAbout():
     aboutFrame = ttk.Frame(aboutDialog)
     aboutNameLabel = ttk.Label(aboutFrame, text="osu! Music Copier", font=("", 15))
 
-    aboutVerLabel = ttk.Label(aboutFrame, text="ver.1.0")
+    aboutVerLabel = ttk.Label(aboutFrame, text="ver.1.1")
     aboutAuthorLabel = ttk.Label(aboutFrame, text="作者: ReNeeter")
     aboutLinkLabel = ttk.Label(
         aboutFrame,
@@ -33,7 +36,7 @@ def showAbout():
     )
     aboutLinkLabel.bind(
         "<1>",
-        openHomepage(),
+        openHomepage,
     )
 
     aboutFrame.pack()
@@ -72,7 +75,7 @@ def showProgress():  # FIXME
 
 
 # コピー
-def copy(osuSongsPath, copyPath, isRename):
+def copy(osuSongsPath, copyPath, isRename, isAddTag):
     if not osuSongsPath or not copyPath:
         messagebox.showerror("エラー", "パスが入力されていません。")
         return
@@ -84,6 +87,7 @@ def copy(osuSongsPath, copyPath, isRename):
 
     copyMusicPathList = []
     osuSongDirNumList = []
+    addTagList = []
     renameMusicNameList = []
     renamedMusicNameList = []
 
@@ -98,6 +102,7 @@ def copy(osuSongsPath, copyPath, isRename):
                 osuSongDirNum = osuSongDirReMatch.group()
             else:
                 osuSongDirNum = ""
+
             if not osuSongDirNum in osuSongDirNumList:
                 osuSong = [s.strip() for s in f.readlines()]
                 copyMusicName = (
@@ -105,37 +110,70 @@ def copy(osuSongsPath, copyPath, isRename):
                     .lstrip("AudioFilename:")
                     .strip()
                 )
-                if not os.path.isfile(os.path.join(osuSongDirPath, copyMusicName)):
+                copyMusicPath = os.path.join(osuSongDirPath, copyMusicName)
+                osuSongDirNumList.append(osuSongDirNum)
+                if not os.path.isfile(copyMusicPath):
                     messagebox.showwarning(
                         "注意",
                         osuSongDirName + "の音楽ファイルが見つかりません。\nスキップします。",
                     )
                     continue
-                copyMusicPathList.append(os.path.join(osuSongDirPath, copyMusicName))
-                osuSongDirNumList.append(osuSongDirNum)
-                if isRename:
-                    renamedMusicNameOriginal = [
-                        s for s in osuSong if s.startswith("TitleUnicode:")
-                    ]
-                    if renamedMusicNameOriginal:
-                        renamedMusicName = (
-                            renamedMusicNameOriginal[0].lstrip("TitleUnicode:").strip()
-                        )
-                    else:
-                        renamedMusicName = (
-                            [s for s in osuSong if s.startswith("Title:")][0]
-                            .lstrip("Title:")
-                            .strip()
-                        )
-                    renamedMusicNameList.append(
-                        renamedMusicName + os.path.splitext(copyMusicName)[1]
+                copyMusicPathList.append(copyMusicPath)
+
+                copyMusicTitleOriginal = [
+                    s for s in osuSong if s.startswith("TitleUnicode:")
+                ]
+                if copyMusicTitleOriginal:
+                    copyMusicTitle = (
+                        copyMusicTitleOriginal[0].lstrip("TitleUnicode:").strip()
+                    )
+                else:
+                    copyMusicTitle = (
+                        [s for s in osuSong if s.startswith("Title:")][0]
+                        .lstrip("Title:")
+                        .strip()
                     )
 
-    if (
-        len(copyMusicPathList) != len(osuSongDirNumList)
-        or len(osuSongDirNumList) != len(renamedMusicNameList)
-        or len(renamedMusicNameList) != len(copyMusicPathList)
-    ):
+                if isAddTag:
+                    try:
+                        addTag = EasyID3(copyMusicPath)
+                    except mutagen.id3._util.ID3NoHeaderError:
+                        break
+                    addTag["title"] = copyMusicTitle
+
+                    copyMusicArtistOriginal = [
+                        s for s in osuSong if s.startswith("ArtistUnicode:")
+                    ]
+                    if copyMusicArtistOriginal:
+                        copyMusicArtist = (
+                            copyMusicArtistOriginal[0].lstrip("ArtistUnicode:").strip()
+                        )
+                    else:
+                        copyMusicArtist = (
+                            [s for s in osuSong if s.startswith("Artist:")][0]
+                            .lstrip("Artist:")
+                            .strip()
+                        )
+                    addTag["artist"] = copyMusicArtist
+
+                    copyMusicAlbumOriginal = [
+                        s for s in osuSong if s.startswith("Source:")
+                    ]
+                    if copyMusicAlbumOriginal:
+                        copyMusicAlbum = (
+                            copyMusicAlbumOriginal[0].lstrip("Source:").strip()
+                        )
+                        addTag["album"] = copyMusicAlbum
+
+                    addTagList.append(addTag)
+                if isRename:
+                    renamedMusicNameList.append(
+                        copyMusicTitle + os.path.splitext(copyMusicName)[1]
+                    )
+
+    if len(copyMusicPathList) != len(renamedMusicNameList) or len(
+        renamedMusicNameList
+    ) != len(copyMusicPathList):
         messagebox.showerror("エラー", "譜面を読込中にエラーが発生しました。")
         return
 
@@ -147,10 +185,19 @@ def copy(osuSongsPath, copyPath, isRename):
         renameMusicNameList.append(copiedMusicName)
         shutil.copy2(copyMusicPath, os.path.join(copyPath, copiedMusicName))
 
+    if isAddTag:
+        addTagCopyFile(addTagList)
+
     if isRename:
         renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList)
     else:
         messagebox.showinfo("情報", "音楽ファイルが全てコピーされました。")
+
+
+# コピーしたファイルにタグを付ける
+def addTagCopyFile(addTagList):
+    for addTag in addTagList:
+        addTag.save()
 
 
 # コピーしたファイルをリネーム
@@ -161,6 +208,7 @@ def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList):
         renamedMusicNameExt = os.path.splitext(renamedMusicName)[1]
         renamedMusicName = renamedMusicName.replace('"', "'")
         renamedMusicName = re.sub(r"[\\/:*?<>|]", "", renamedMusicName)
+
         if os.path.isfile(os.path.join(copyPath, renamedMusicName)):
             renamedMusicName = re.sub(
                 renamedMusicNameExt + r"$",
@@ -175,6 +223,7 @@ def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList):
                     " (" + str(renameCount) + ")" + renamedMusicNameExt,
                     renamedMusicName,
                 )
+
         os.rename(
             os.path.join(copyPath, renameMusicName),
             os.path.join(copyPath, renamedMusicName),
@@ -193,8 +242,8 @@ mainRoot.title("osu! Music Copier")
 mainMenu = tkinter.Menu(mainRoot)
 mainMenu.add_command(label="About", command=showAbout)
 mainRoot.config(menu=mainMenu)
-
 mainFrame = ttk.Frame(mainRoot)
+
 osuSongsPathLabel = ttk.Label(mainFrame, text="osu!のSongsフォルダのパス")
 osuSongsPathEntry = ttk.Entry(mainFrame, width=80)
 osuSongsPathBrowseButton = ttk.Button(
@@ -205,18 +254,20 @@ copyPathEntry = ttk.Entry(mainFrame, width=80)
 copyPathBrowseButton = ttk.Button(
     mainFrame, text="参照…", command=lambda: showDirSelect(copyPathEntry)
 )
+
+isAddTagCheckButtonChecked = tkinter.BooleanVar(value=True)
+isAddTagCheckButton = ttk.Checkbutton(
+    mainFrame,
+    text="コピー後に譜面から音楽ファイルの情報を読み取りタグ付けする\n（このオプションはコピーした音楽ファイルがMP3（ID3）形式の場合のみ機能します。\n既存のタグは上書きされます。）",
+    variable=isAddTagCheckButtonChecked,
+)
 isRenameCheckButtonChecked = tkinter.BooleanVar(value=True)
 isRenameCheckButton = ttk.Checkbutton(
     mainFrame,
     text="コピー後にファイル名を曲名にリネームする",
     variable=isRenameCheckButtonChecked,
 )
-isAddTagCheckButtonChecked = tkinter.BooleanVar(value=True)
-isAddTagCheckButton = ttk.Checkbutton(
-    mainFrame,
-    text="コピー後に譜面から音楽ファイルの情報を読み取りタグ付けする",
-    variable=isAddTagCheckButtonChecked,
-)
+
 copyStartButton = ttk.Button(
     mainFrame,
     text="コピー",
@@ -224,6 +275,7 @@ copyStartButton = ttk.Button(
         copy,
         osuSongsPathEntry.get(),
         copyPathEntry.get(),
+        isAddTagCheckButtonChecked.get(),
         isRenameCheckButtonChecked.get(),
     ),
 )
@@ -235,8 +287,8 @@ osuSongsPathBrowseButton.grid(row=0, column=2, padx=10, pady=10)
 copyPathLabel.grid(row=1, column=0, padx=10, pady=10)
 copyPathEntry.grid(row=1, column=1, padx=10, pady=10)
 copyPathBrowseButton.grid(row=1, column=2, padx=10, pady=10)
-isRenameCheckButton.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
-isAddTagCheckButton.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
+isAddTagCheckButton.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
+isRenameCheckButton.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
 copyStartButton.grid(row=4, column=0, columnspan=3, padx=10, pady=10)
 
 mainRoot.mainloop()
