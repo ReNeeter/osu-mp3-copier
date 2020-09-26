@@ -26,10 +26,11 @@ jobs:
         with:
           python-version: 3.x
 
-      # Install cx_Freeze
-      - name: Install cx_Freeze
+      # Install dependencies
+      - name: Install dependencies
         run: |
-          pip install -U pip
+          pip list -o | tail -n +3 | awk '{ print $1 }' | xargs pip install -U
+          pip install mutagen
           pip install cx_freeze
 
       # Build

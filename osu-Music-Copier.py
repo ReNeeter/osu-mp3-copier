@@ -3,11 +3,15 @@ import glob
 import os
 import re
 import shutil
-import sys
 import tkinter
 import threading
 import webbrowser
 from tkinter import filedialog, ttk, messagebox
+
+
+# ホームページを開く
+def openHomepage():
+    webbrowser.open("https://github.com/ReNeeter/osu-Music-Copier")
 
 
 # Aboutを表示
@@ -18,7 +22,7 @@ def showAbout():
     aboutDialog.title("About")
 
     aboutFrame = ttk.Frame(aboutDialog)
-    aboutNameLabel = ttk.Label(aboutFrame, text="osu! Music Copier", font=(None, 15))
+    aboutNameLabel = ttk.Label(aboutFrame, text="osu! Music Copier", font=("", 15))
 
     aboutVerLabel = ttk.Label(aboutFrame, text="ver.1.0")
     aboutAuthorLabel = ttk.Label(aboutFrame, text="作者: ReNeeter")
@@ -29,7 +33,7 @@ def showAbout():
     )
     aboutLinkLabel.bind(
         "<1>",
-        lambda e: webbrowser.open("https://github.com/ReNeeter/osu-Music-Copier"),
+        openHomepage(),
     )
 
     aboutFrame.pack()
@@ -37,6 +41,34 @@ def showAbout():
     aboutVerLabel.pack()
     aboutAuthorLabel.pack()
     aboutLinkLabel.pack(padx=10, pady=(0, 10))
+
+
+# ディレクトリ選択ダイアログを表示
+def showDirSelect(setEntry):
+    selectDir = filedialog.askdirectory()
+    if selectDir:
+        setEntry.delete(0, "end")
+        setEntry.insert(0, selectDir)
+
+
+# スレッドを開始
+def startThread(thread, *args):
+    threading.Thread(target=thread, args=args).start()
+
+
+# 進捗状況を表示
+def showProgress():  # FIXME
+    progressDialog = tkinter.Toplevel(mainRoot)
+    progressDialog.grab_set()
+    progressDialog.resizable(False, False)
+    progressDialog.title("進捗状況")
+
+    progressFrame = ttk.Frame(progressDialog)
+    progressBar = ttk.Progressbar(progressFrame, mode="indeterminate")
+
+    progressFrame.pack()
+    progressBar.pack()
+    progressBar.start()
 
 
 # コピー
@@ -81,22 +113,23 @@ def copy(osuSongsPath, copyPath, isRename):
                     continue
                 copyMusicPathList.append(os.path.join(osuSongDirPath, copyMusicName))
                 osuSongDirNumList.append(osuSongDirNum)
-                renamedMusicNameOriginal = [
-                    s for s in osuSong if s.startswith("TitleUnicode:")
-                ]
-                if renamedMusicNameOriginal:
-                    renamedMusicName = (
-                        renamedMusicNameOriginal[0].lstrip("TitleUnicode:").strip()
+                if isRename:
+                    renamedMusicNameOriginal = [
+                        s for s in osuSong if s.startswith("TitleUnicode:")
+                    ]
+                    if renamedMusicNameOriginal:
+                        renamedMusicName = (
+                            renamedMusicNameOriginal[0].lstrip("TitleUnicode:").strip()
+                        )
+                    else:
+                        renamedMusicName = (
+                            [s for s in osuSong if s.startswith("Title:")][0]
+                            .lstrip("Title:")
+                            .strip()
+                        )
+                    renamedMusicNameList.append(
+                        renamedMusicName + os.path.splitext(copyMusicName)[1]
                     )
-                else:
-                    renamedMusicName = (
-                        [s for s in osuSong if s.startswith("Title:")][0]
-                        .lstrip("Title:")
-                        .strip()
-                    )
-                renamedMusicNameList.append(
-                    renamedMusicName + os.path.splitext(copyMusicName)[1]
-                )
 
     if (
         len(copyMusicPathList) != len(osuSongDirNumList)
@@ -120,14 +153,6 @@ def copy(osuSongsPath, copyPath, isRename):
         messagebox.showinfo("情報", "音楽ファイルが全てコピーされました。")
 
 
-# ディレクトリ選択ダイアログを表示
-def showDirSelect(setEntry):
-    selectDir = tkinter.filedialog.askdirectory()
-    if selectDir:
-        setEntry.delete(0, "end")
-        setEntry.insert(0, selectDir)
-
-
 # コピーしたファイルをリネーム
 def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList):
     for renameMusicName, renamedMusicName in zip(
@@ -143,10 +168,10 @@ def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList):
                 renamedMusicName,
             )
             renameCount = 1
-            while os.path.isfile(os.path.join(copyPath, renamedMusicName)):  # FIXME
+            while os.path.isfile(os.path.join(copyPath, renamedMusicName)):
                 renameCount += 1
                 renamedMusicName = re.sub(
-                    r" (" + str(renameCount - 1) + r")" + renamedMusicNameExt + r"$",
+                    r" \(" + str(renameCount - 1) + r"\)" + renamedMusicNameExt + r"$",
                     " (" + str(renameCount) + ")" + renamedMusicNameExt,
                     renamedMusicName,
                 )
@@ -156,26 +181,6 @@ def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList):
         )
 
     messagebox.showinfo("情報", "音楽ファイルが全てコピー＆リネームされました。")
-
-
-# 進捗状況を表示
-def showProgress():  # FIXME
-    progressDialog = tkinter.Toplevel(mainRoot)
-    progressDialog.grab_set()
-    progressDialog.resizable(False, False)
-    progressDialog.title("進捗状況")
-
-    progressFrame = ttk.Frame(progressDialog)
-    progressBar = ttk.Progressbar(progressFrame, mode="indeterminate")
-
-    progressFrame.pack()
-    progressBar.pack()
-    progressBar.start()
-
-
-# スレッドを開始
-def startThread(thread, *args):
-    threading.Thread(target=thread, args=args).start()
 
 
 # Tkinterを設定
@@ -203,7 +208,7 @@ copyPathBrowseButton = ttk.Button(
 isRenameCheckButtonChecked = tkinter.BooleanVar(value=True)
 isRenameCheckButton = ttk.Checkbutton(
     mainFrame,
-    text="コピー後にファイル名から識別番号等のゴミを取り除く",
+    text="コピー後にファイル名を曲名にリネームする",
     variable=isRenameCheckButtonChecked,
 )
 isAddTagCheckButtonChecked = tkinter.BooleanVar(value=True)
