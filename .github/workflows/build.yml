@@ -2,15 +2,15 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.buildOS }}
+  Build:
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        buildOS:
+        os:
           - windows-latest
           - ubuntu-latest
           - macos-latest
@@ -33,6 +33,17 @@ jobs:
           pip install mutagen
           pip install cx_freeze
 
+      # Download TkInterDnD2
+      - name: Download TkInterDnD2
+        uses: actions/checkout@v2
+        with:
+          repository: pmgagne/tkinterdnd2
+          path: tkinterdnd2
+
+      # Install TkInterDnD2
+      - name: Install TkInterDnD2
+        run: python tkinterdnd2/setup.py install
+
       # Build
       - name: Build
         run: python setup.py build
@@ -41,5 +52,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.buildOS }}
+          name: ${{ matrix.os }}
           path: build

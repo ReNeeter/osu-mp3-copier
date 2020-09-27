@@ -1,15 +1,17 @@
 import ctypes
 import glob
-import mutagen.id3
 import os
 import re
 import shutil
 import tkinter
+import tkinterdnd2  # FIXME
 import threading
 import webbrowser
 
-from tkinter import filedialog, ttk, messagebox
+from mutagen import id3
 from mutagen.easyid3 import EasyID3
+from pathlib import Path  # FIXME
+from tkinter import filedialog, ttk, messagebox
 
 
 # ホームページを開く
@@ -79,8 +81,6 @@ def copy(osuSongsPath, copyPath, isRename, isAddTag):
     if not osuSongsPath or not copyPath:
         messagebox.showerror("エラー", "パスが入力されていません。")
         return
-    osuSongsPath = os.path.expandvars(osuSongsPath)
-    copyPath = os.path.expandvars(copyPath)
     if not os.path.isdir(osuSongsPath) and not os.path.isdir(copyPath):
         messagebox.showerror("エラー", "入力されたパスが壊れています。")
         return
@@ -142,7 +142,7 @@ def copy(osuSongsPath, copyPath, isRename, isAddTag):
                 if isAddTag:
                     try:
                         addTag = EasyID3(copyMusicPath)
-                    except mutagen.id3._util.ID3NoHeaderError:
+                    except id3._util.ID3NoHeaderError:
                         continue
                     addTag["title"] = copyMusicTitle
 
@@ -184,7 +184,9 @@ def copy(osuSongsPath, copyPath, isRename, isAddTag):
         addTagCopyFile(addTagList)
 
     if isRename:
-        renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList)
+        renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList, isAddTag)
+    elif isAddTag:
+        messagebox.showinfo("情報", "音楽ファイルが全てコピー＆タグ付けされました。")
     else:
         messagebox.showinfo("情報", "音楽ファイルが全てコピーされました。")
 
@@ -196,7 +198,7 @@ def addTagCopyFile(addTagList):
 
 
 # コピーしたファイルをリネーム
-def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList):
+def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList, isAddTag):
     for renameMusicName, renamedMusicName in zip(
         renameMusicNameList, renamedMusicNameList
     ):
@@ -224,7 +226,10 @@ def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList):
             os.path.join(copyPath, renamedMusicName),
         )
 
-    messagebox.showinfo("情報", "音楽ファイルが全てコピー＆リネームされました。")
+    if isAddTag:
+        messagebox.showinfo("情報", "音楽ファイルが全てコピー＆タグ付け＆リネームされました。")
+    else:
+        messagebox.showinfo("情報", "音楽ファイルが全てコピー＆リネームされました。")
 
 
 # Tkinterを設定
@@ -253,7 +258,7 @@ copyPathBrowseButton = ttk.Button(
 isAddTagCheckButtonChecked = tkinter.BooleanVar(value=True)
 isAddTagCheckButton = ttk.Checkbutton(
     mainFrame,
-    text="コピー後に譜面から音楽ファイルの情報を読み取りタグ付けする\n（このオプションはコピーした音楽ファイルがMP3（ID3）形式の場合のみ機能します。\n既存のタグは上書きされます。）",
+    text="コピー後に譜面から音楽ファイルの情報を読み取りタグ付けする\n（このオプションはコピーした音楽ファイルがID3形式の場合のみ機能します。\n既存のタグは上書きされます。）",
     variable=isAddTagCheckButtonChecked,
 )
 isRenameCheckButtonChecked = tkinter.BooleanVar(value=True)
