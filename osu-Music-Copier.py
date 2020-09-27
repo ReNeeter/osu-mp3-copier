@@ -5,7 +5,7 @@ import threading
 import webbrowser
 
 from copier_process import copy
-from tkinter import filedialog, ttk
+from tkinter import Text, filedialog, ttk
 
 
 # osu! Music Copierのリポジトリを開く
@@ -51,18 +51,22 @@ def showDirSelect(setEntry):
 
 
 # 進捗状況を表示
-def showProgress():  # FIXME
+def showProgress():
     progressDialog = tkinter.Toplevel(mainRoot)
     progressDialog.grab_set()
     progressDialog.resizable(False, False)
     progressDialog.title("進捗状況")
 
     progressFrame = ttk.Frame(progressDialog)
-    progressBar = ttk.Progressbar(progressFrame, mode="indeterminate")
+    progressNameLabel = ttk.Label(progressFrame, text="進捗状況", font=("", 15))
+    progressConsoleBox = Text(progressFrame)
+    progressBar = ttk.Progressbar(progressFrame, mode="indeterminate", length=800)
 
     progressFrame.pack()
-    progressBar.pack()
-    progressBar.start()
+    progressNameLabel.pack(padx=10, pady=10)
+    progressConsoleBox.pack()
+    progressBar.pack(padx=10, pady=10)
+    progressBar.start(15)
 
 
 # Tkinterを設定
@@ -101,18 +105,22 @@ isRenameCheckButton = ttk.Checkbutton(
     variable=isRenameCheckButtonChecked,
 )
 
+
 copyStartButton = ttk.Button(
     mainFrame,
     text="コピー",
-    command=lambda: threading.Thread(
-        target=copy,
-        args=(
-            osuSongsPathEntry.get(),
-            copyPathEntry.get(),
-            isAddTagCheckButtonChecked.get(),
-            isRenameCheckButtonChecked.get(),
-        ),
-    ).start(),
+    command=lambda: [
+        threading.Thread(
+            target=copy,
+            args=(
+                osuSongsPathEntry.get(),
+                copyPathEntry.get(),
+                isAddTagCheckButtonChecked.get(),
+                isRenameCheckButtonChecked.get(),
+            ),
+        ).start(),
+        showProgress(),
+    ],
 )
 
 mainFrame.pack()
