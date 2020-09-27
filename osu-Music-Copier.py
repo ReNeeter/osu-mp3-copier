@@ -94,7 +94,7 @@ def copy(osuSongsPath, copyPath, isRename, isAddTag):
     for osuSongPath in glob.glob(
         os.path.join(osuSongsPath, r"**\*.osu"), recursive=True
     ):
-        with open(osuSongPath, encoding="UTF-8") as f:
+        with open(osuSongPath, encoding="utf8") as f:
             osuSongDirPath = os.path.dirname(osuSongPath)
             osuSongDirName = os.path.basename(osuSongDirPath)
             osuSongDirReMatch = re.match(r"\d+", osuSongDirName)
