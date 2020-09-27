@@ -11,7 +11,6 @@ jobs:
     strategy:
       matrix:
         os:
-          - windows-latest
           - ubuntu-latest
           - macos-latest
 
@@ -39,11 +38,6 @@ jobs:
         with:
           repository: pmgagne/tkinterdnd2
           path: tkinterdnd2
-
-      # Fix Windows TkInterDnD2
-      - name: Fix Windows TkInterDnD2
-        run: sed -i -e '3s/"README.md", "r"/r"README.md", encoding="cp932"/g' tkinterdnd2/setup.py
-        if: ${{ runner.os }} == Windows
 
       # Install TkInterDnD2
       - name: Install TkInterDnD2
