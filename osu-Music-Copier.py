@@ -134,11 +134,16 @@ def copy(osuSongsPath, copyPath, isRename, isAddTag):
                         .strip()
                     )
 
+                if isRename:
+                    renamedMusicNameList.append(
+                        copyMusicTitle + os.path.splitext(copyMusicName)[1]
+                    )
+
                 if isAddTag:
                     try:
                         addTag = EasyID3(copyMusicPath)
                     except mutagen.id3._util.ID3NoHeaderError:
-                        break
+                        continue
                     addTag["title"] = copyMusicTitle
 
                     copyMusicArtistOriginal = [
@@ -166,10 +171,6 @@ def copy(osuSongsPath, copyPath, isRename, isAddTag):
                         addTag["album"] = copyMusicAlbum
 
                     addTagList.append(addTag)
-                if isRename:
-                    renamedMusicNameList.append(
-                        copyMusicTitle + os.path.splitext(copyMusicName)[1]
-                    )
 
     for copyMusicPath in copyMusicPathList:
         copiedMusicName = (
