@@ -1,11 +1,14 @@
 import ctypes
+from shutil import copy2
+import sys
 import tkinter
 import tkinterdnd2  # FIXME
-import threading
 import webbrowser
 
 from copier_process import copy
-from tkinter import Text, filedialog, ttk
+from queue import Queue
+from tkinter import filedialog, Text, ttk
+from threading import Thread
 
 
 # osu! Music Copierのリポジトリを開く
@@ -50,8 +53,26 @@ def showDirSelect(setEntry):
         setEntry.insert(0, selectDir)
 
 
+# 処理を開始
+def runCopy():
+    global copyThread
+    copyThread = Thread(
+        target=copy,
+        args=(
+            osuSongsPathEntry.get(),
+            copyPathEntry.get(),
+            isAddTagCheckButtonChecked.get(),
+            isRenameCheckButtonChecked.get(),
+            threadQueue,
+        ),
+    )
+    copyThread.setDaemon(True)
+    copyThread.start()
+
+
 # 進捗状況を表示
 def showProgress():
+    global progressDialog  # FIXME
     progressDialog = tkinter.Toplevel(mainRoot)
     progressDialog.grab_set()
     progressDialog.resizable(False, False)
@@ -59,6 +80,7 @@ def showProgress():
 
     progressFrame = ttk.Frame(progressDialog)
     progressNameLabel = ttk.Label(progressFrame, text="進捗状況", font=("", 15))
+    global progressConsoleBox  # FIXME
     progressConsoleBox = Text(progressFrame)
     progressBar = ttk.Progressbar(progressFrame, mode="indeterminate", length=800)
 
@@ -67,6 +89,24 @@ def showProgress():
     progressConsoleBox.pack()
     progressBar.pack(padx=10, pady=10)
     progressBar.start(15)
+
+    queueThread = Thread(target=getQueue)
+    queueThread.setDaemon(True)
+    queueThread.start()
+
+
+# キューを取得
+def getQueue():
+    progressConsoleBox.insert("1.0", threadQueue.get())
+    if not threadQueue.get():
+        progressDialog.destroy()
+        sys.exit()
+    if isAddTagCheckButtonChecked.get():
+        progressConsoleBox.insert("2.0", threadQueue.get())
+    if isRenameCheckButtonChecked.get():
+        progressConsoleBox.insert("3.0", threadQueue.get())
+    copyThread.join()
+    progressDialog.destroy()
 
 
 # Tkinterを設定
@@ -105,20 +145,13 @@ isRenameCheckButton = ttk.Checkbutton(
     variable=isRenameCheckButtonChecked,
 )
 
+threadQueue = Queue()
 
 copyStartButton = ttk.Button(
     mainFrame,
     text="コピー",
     command=lambda: [
-        threading.Thread(
-            target=copy,
-            args=(
-                osuSongsPathEntry.get(),
-                copyPathEntry.get(),
-                isAddTagCheckButtonChecked.get(),
-                isRenameCheckButtonChecked.get(),
-            ),
-        ).start(),
+        runCopy(),
         showProgress(),
     ],
 )

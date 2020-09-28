@@ -10,11 +10,14 @@ from tkinter import messagebox
 
 
 # コピー
-def copy(osuSongsPath, copyPath, isAddTag, isRename):
+def copy(osuSongsPath, copyPath, isAddTag, isRename, threadQueue):
+    threadQueue.put("コピー中です…")
     if not osuSongsPath or not copyPath:
+        threadQueue.put(False)
         messagebox.showerror("エラー", "パスが入力されていません。")
         return
     if not os.path.isdir(osuSongsPath) and not os.path.isdir(copyPath):
+        threadQueue.put(False)
         messagebox.showerror("エラー", "入力されたパスが壊れています。")
         return
 
@@ -114,9 +117,11 @@ def copy(osuSongsPath, copyPath, isAddTag, isRename):
         shutil.copy2(copyMusicPath, os.path.join(copyPath, copiedMusicName))
 
     if isAddTag:
+        threadQueue.put("タグ付け中です…")
         addTagCopyFile(addTagList)
 
     if isRename:
+        threadQueue.put("リネーム中です…")
         renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList, isAddTag)
     elif isAddTag:
         messagebox.showinfo("情報", "音楽ファイルが全てコピー＆タグ付けされました。")
