@@ -16,10 +16,11 @@ def copy(osuSongsPath, copyPath, isAddTag, isRename, threadQueue):
         threadQueue.put(False)
         messagebox.showerror("エラー", "パスが入力されていません。")
         return
-    if not os.path.isdir(osuSongsPath) and not os.path.isdir(copyPath):
+    if not os.path.isdir(osuSongsPath) or not os.path.isdir(copyPath):
         threadQueue.put(False)
         messagebox.showerror("エラー", "入力されたパスが壊れています。")
         return
+    threadQueue.put(True)
 
     osuSongDirNumList = []
     copyMusicPathList = []
@@ -80,7 +81,8 @@ def copy(osuSongsPath, copyPath, isAddTag, isRename, threadQueue):
                         addTag = EasyID3(copyMusicPath)
                     except id3._util.ID3NoHeaderError:
                         continue
-                    addTag["title"] = copyMusicTitle
+                    if copyMusicTitle:
+                        addTag["title"] = copyMusicTitle
 
                     copyMusicArtistOriginal = [
                         s for s in osuSong if s.startswith("ArtistUnicode:")
@@ -95,7 +97,8 @@ def copy(osuSongsPath, copyPath, isAddTag, isRename, threadQueue):
                             .lstrip("Artist:")
                             .strip()
                         )
-                    addTag["artist"] = copyMusicArtist
+                    if copyMusicArtist:
+                        addTag["artist"] = copyMusicArtist
 
                     copyMusicAlbumOriginal = [
                         s for s in osuSong if s.startswith("Source:")
@@ -104,7 +107,8 @@ def copy(osuSongsPath, copyPath, isAddTag, isRename, threadQueue):
                         copyMusicAlbum = (
                             copyMusicAlbumOriginal[0].lstrip("Source:").strip()
                         )
-                        addTag["album"] = copyMusicAlbum
+                        if copyMusicAlbum:
+                            addTag["album"] = copyMusicAlbum
 
                     addTagList.append(addTag)
 
@@ -140,6 +144,8 @@ def renameCopyFile(copyPath, renameMusicNameList, renamedMusicNameList, isAddTag
     for renameMusicName, renamedMusicName in zip(
         renameMusicNameList, renamedMusicNameList
     ):
+        if not renameMusicName or not renamedMusicName:
+            continue
         renamedMusicNameExt = os.path.splitext(renamedMusicName)[1]
         renamedMusicName = renamedMusicName.replace('"', "'")
         renamedMusicName = re.sub(r"[\\/:*?<>|]", "", renamedMusicName)

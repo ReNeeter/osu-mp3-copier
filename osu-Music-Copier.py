@@ -1,5 +1,5 @@
 import ctypes
-from shutil import copy2
+import platform
 import sys
 import tkinter
 import tkinterdnd2  # FIXME
@@ -55,7 +55,7 @@ def showDirSelect(setEntry):
 
 # 処理を開始
 def runCopy():
-    global copyThread
+    global copyThread  # FIXME
     copyThread = Thread(
         target=copy,
         args=(
@@ -66,7 +66,7 @@ def runCopy():
             threadQueue,
         ),
     )
-    copyThread.setDaemon(True)
+    copyThread.daemon = True
     copyThread.start()
 
 
@@ -74,6 +74,7 @@ def runCopy():
 def showProgress():
     global progressDialog  # FIXME
     progressDialog = tkinter.Toplevel(mainRoot)
+    progressDialog.protocol("WM_DELETE_WINDOW", lambda: "break")
     progressDialog.grab_set()
     progressDialog.resizable(False, False)
     progressDialog.title("進捗状況")
@@ -82,6 +83,7 @@ def showProgress():
     progressNameLabel = ttk.Label(progressFrame, text="進捗状況", font=("", 15))
     global progressConsoleBox  # FIXME
     progressConsoleBox = Text(progressFrame)
+    progressConsoleBox.bind("<Key>", lambda e: "break")
     progressBar = ttk.Progressbar(progressFrame, mode="indeterminate", length=800)
 
     progressFrame.pack()
@@ -91,26 +93,27 @@ def showProgress():
     progressBar.start(15)
 
     queueThread = Thread(target=getQueue)
-    queueThread.setDaemon(True)
+    queueThread.daemon = True
     queueThread.start()
 
 
 # キューを取得
 def getQueue():
-    progressConsoleBox.insert("1.0", threadQueue.get())
+    progressConsoleBox.insert("end", threadQueue.get() + "\n")
     if not threadQueue.get():
         progressDialog.destroy()
         sys.exit()
     if isAddTagCheckButtonChecked.get():
-        progressConsoleBox.insert("2.0", threadQueue.get())
+        progressConsoleBox.insert("end", threadQueue.get() + "\n")
     if isRenameCheckButtonChecked.get():
-        progressConsoleBox.insert("3.0", threadQueue.get())
+        progressConsoleBox.insert("end", threadQueue.get() + "\n")
     copyThread.join()
     progressDialog.destroy()
 
 
 # Tkinterを設定
-ctypes.windll.shcore.SetProcessDpiAwareness(True)
+if platform.system() == "Windows":
+    ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
 mainRoot = tkinter.Tk()
 mainRoot.resizable(False, False)
