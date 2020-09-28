@@ -44,7 +44,7 @@ jobs:
       - name: Fix TkInterDnD2
         run: |
           sed -i -e '3,4d' tkinterdnd2/setup.py
-          sed -i -e '11,12d' tkinterdnd2/setup.py
+          sed -i -e '9,10d' tkinterdnd2/setup.py
           cat tkinterdnd2/setup.py
 
       # Install TkInterDnD2
