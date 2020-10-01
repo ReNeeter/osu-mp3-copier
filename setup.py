@@ -9,7 +9,7 @@ if sys.platform == "win32":
 
 setup(
     name="osu! Music Copier",
-    version="1.1",
+    version="1.2",
     description="osu!の譜面フォルダーから音楽ファイルをコピーします。",
     executables=[Executable("osu-Music-Copier.py", base=base)],
 )

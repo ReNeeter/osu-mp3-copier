@@ -33,23 +33,6 @@ jobs:
           pip install mutagen
           pip install cx_freeze
 
-      # Download TkInterDnD2
-      - name: Download TkInterDnD2
-        uses: actions/checkout@v2
-        with:
-          repository: pmgagne/tkinterdnd2
-          path: tkinterdnd2
-
-      # Fix TkInterDnD2
-      - name: Fix TkInterDnD2
-        run: |
-          sed -i -e '3,4d' tkinterdnd2/setup.py
-          sed -i -e '9,10d' tkinterdnd2/setup.py
-
-      # Install TkInterDnD2
-      - name: Install TkInterDnD2
-        run: python tkinterdnd2/setup.py install
-
       # Build
       - name: Build
         run: python setup.py build
