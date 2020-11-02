@@ -16,22 +16,18 @@ jobs:
           - macos-latest
 
     steps:
-      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Install dependencies
       - name: Install dependencies
         run: |
           pip list -o | tail -n +3 | awk '{ print $1 }' | xargs pip install -U
           pip install mutagen
           pip install cx_freeze
 
-      # Build
       - name: Build
         run: python setup.py build
 
-      # Upload build artifact
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
