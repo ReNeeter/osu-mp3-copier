@@ -3,11 +3,11 @@ import platform
 import sys
 import tkinter
 import webbrowser
+from queue import Queue
+from threading import Thread
+from tkinter import Text, filedialog, ttk
 
 from copier_process import copy
-from queue import Queue
-from tkinter import filedialog, Text, ttk
-from threading import Thread
 
 
 # osu! Music Copierのリポジトリを開く
