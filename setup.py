@@ -1,15 +1,8 @@
-import sys
-from cx_Freeze import setup, Executable
-
-
-base = None
-if sys.platform == "win32":
-    base = "Win32GUI"
-
+from cx_Freeze import Executable, setup
 
 setup(
     name="osu! Music Copier",
-    version="1.1",
+    version="1.2",
     description="osu!の譜面フォルダーから音楽ファイルをコピーします。",
-    executables=[Executable("osu-Music-Copier.py", base=base)],
+    executables=[Executable("osu-Music-Copier.py")],
 )

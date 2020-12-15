@@ -1,8 +1,6 @@
 name: Build
 
-on:
-  push:
-    branches: [master]
+on: workflow_dispatch
 
 jobs:
   Build:
@@ -16,45 +14,15 @@ jobs:
           - macos-latest
 
     steps:
-      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Setup Python
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-
-      # Install dependencies
       - name: Install dependencies
-        run: |
-          pip list -o | tail -n +3 | awk '{ print $1 }' | xargs pip install -U
-          pip install mutagen
-          pip install cx_freeze
+        run: pip install mutagen cx_freeze
 
-      # Download TkInterDnD2
-      - name: Download TkInterDnD2
-        uses: actions/checkout@v2
-        with:
-          repository: pmgagne/tkinterdnd2
-          path: tkinterdnd2
-
-      # Fix TkInterDnD2
-      - name: Fix TkInterDnD2
-        run: |
-          sed -i -e '3,4d' tkinterdnd2/setup.py
-          sed -i -e '9,10d' tkinterdnd2/setup.py
-
-      # Install TkInterDnD2
-      - name: Install TkInterDnD2
-        run: python tkinterdnd2/setup.py install
-
-      # Build
       - name: Build
         run: python setup.py build
 
-      # Upload build artifact
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:

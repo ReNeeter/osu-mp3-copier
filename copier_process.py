@@ -2,11 +2,10 @@ import glob
 import os
 import re
 import shutil
+from tkinter import messagebox
 
 from mutagen import id3
 from mutagen.easyid3 import EasyID3
-from pathlib import Path  # FIXME
-from tkinter import messagebox
 
 
 # コピー

@@ -2,13 +2,12 @@ import ctypes
 import platform
 import sys
 import tkinter
-import tkinterdnd2  # FIXME
 import webbrowser
+from queue import Queue
+from threading import Thread
+from tkinter import Text, filedialog, ttk
 
 from copier_process import copy
-from queue import Queue
-from tkinter import filedialog, Text, ttk
-from threading import Thread
 
 
 # osu! Music Copierのリポジトリを開く
@@ -26,7 +25,7 @@ def showAbout():
     aboutFrame = ttk.Frame(aboutDialog)
     aboutNameLabel = ttk.Label(aboutFrame, text="osu! Music Copier", font=("", 15))
 
-    aboutVerLabel = ttk.Label(aboutFrame, text="ver.1.1")
+    aboutVerLabel = ttk.Label(aboutFrame, text="ver.1.2")
     aboutAuthorLabel = ttk.Label(aboutFrame, text="作者: ReNeeter")
     aboutLinkLabel = ttk.Label(
         aboutFrame,
