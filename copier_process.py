@@ -2,7 +2,6 @@ import glob
 import os
 import re
 import shutil
-from pathlib import Path  # FIXME
 from tkinter import messagebox
 
 from mutagen import id3
