@@ -23,7 +23,7 @@ jobs:
           pip3 install mutagen cx_freeze
 
       - name: Build
-        run: python3 setup.py build
+        run: python setup.py build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
