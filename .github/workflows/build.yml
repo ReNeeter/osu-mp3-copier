@@ -18,7 +18,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install dependencies
-        run: pip3 install mutagen cx_freeze
+        run: |
+          pip3 install -U setuptools
+          pip3 install mutagen cx_freeze
 
       - name: Build
         run: python3 setup.py build
