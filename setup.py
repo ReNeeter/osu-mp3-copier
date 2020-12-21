@@ -4,5 +4,5 @@ setup(
     name="osu! Music Copier",
     version="2.0",
     description="Copy the music file from the music folder of osu!.",
-    executables=[Executable("osu-music-copier.py")],
+    executables=[Executable("osu_music_copier.py")],
 )
