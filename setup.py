@@ -2,7 +2,7 @@ from cx_Freeze import Executable, setup
 
 setup(
     name="osu! Music Copier",
-    version="1.2",
-    description="osu!の譜面フォルダーから音楽ファイルをコピーします。",
-    executables=[Executable("osu-Music-Copier.py")],
+    version="2.0",
+    description="Copy the music file from the music folder of osu!.",
+    executables=[Executable("osu-music-copier.py")],
 )
